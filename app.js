@@ -1,18 +1,7 @@
-// const mongoose = require("mongoose");
-
-// const DB_HOST =
-//   "mongodb+srv://tanyagryanko:KP2carfSJfWjh3tZ@cluster0.aawt66m.mongodb.net/db-contacts?retryWrites=true&w=majority";
-
-// mongoose.set("strictQuery", true);
-
-// mongoose
-//   .connect(DB_HOST)
-//   .then(() => console.log("Database connection successful"))
-//   .catch((error) => console.log(error.catch));
-
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+require("dotenv").config();
 
 const contactsRouter = require("./routes/api/contacts");
 
@@ -31,7 +20,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
+  const { status = 500, message = "Server error" } = err;
+  res.status(status).json({ message });
 });
 
 module.exports = app;
