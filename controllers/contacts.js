@@ -14,8 +14,8 @@ const listContacts = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
-  const { _id } = req.user;
-  const result = await Contact.create({ ...req.body, owner: _id });
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   if (!result) {
     throw HttpError(404);
   }
@@ -24,16 +24,23 @@ const addContact = async (req, res) => {
 
 const getContactById = async (req, res) => {
   const { id } = req.params;
-  const result = await Contact.findById(id);
+  const { _id: owner } = req.user;
+  const result = await Contact.findById({ _id: id, owner }).populate(
+    "owner",
+    "email"
+  );
   if (!result) {
     throw HttpError(404, "Not found");
   }
-  res.json(result);
+  res.status(200).json(result);
 };
 
 const updateContact = async (req, res) => {
   const { id } = req.params;
-  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  const { _id: owner } = req.user;
+  const result = await Contact.findByIdAndUpdate({ _id: id, owner }, req.body, {
+    new: true,
+  }).populate("owner", "email");
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -42,7 +49,10 @@ const updateContact = async (req, res) => {
 
 const updateFavorite = async (req, res) => {
   const { id } = req.params;
-  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  const { _id: owner } = req.user;
+  const result = await Contact.findByIdAndUpdate({ _id: id, owner }, req.body, {
+    new: true,
+  }).populate("owner", "email");
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -51,7 +61,8 @@ const updateFavorite = async (req, res) => {
 
 const removeContact = async (req, res) => {
   const { id } = req.params;
-  const result = await Contact.findByIdAndDelete(id);
+  const { _id: owner } = req.user;
+  const result = await Contact.findByIdAndDelete({ _id: id, owner });
   if (!result) {
     throw HttpError(404, "Not found");
   }
